@@ -11,6 +11,7 @@ const App = () => {
 	const [newNumber, setNewNumber] = useState("");
 	const [newSearch, setNewSearch] = useState("");
 	const [filteredPerson, setFilteredPerson] = useState([]);
+	const [errorMessage, setErrorMessage] = useState(null);
 
 	useEffect(() => {
 		personService.getAll()
@@ -18,6 +19,18 @@ const App = () => {
 			setPersons(responce.data);
 		})
 	}, [])
+
+	const Notification = ({message}) => {
+		if (message === null) {
+			return null
+		}
+
+		return (
+			<div>
+				<p className="error">{message}</p>
+			</div>
+		)
+	}
 
 	const addPerson = (event) => {
 		event.preventDefault();
@@ -30,7 +43,8 @@ const App = () => {
 		const personOldValues = persons.find(p => p.name === personObject.name);
 
 		if (Object.values(personObject).filter( elem => elem === '').length > 0) {
-			alert('fill in the empty fields');
+			setErrorMessage('Fill in the empty fields');
+			setTimeout(() => setErrorMessage(null), 3000);
 		} else if (personOldValues) {
 			if (window.confirm(`${personOldValues.name} is already added to phonebook, replace the old number with a new one?`)) {
 				const personNewValues = {...personOldValues, number: personObject.number};
@@ -117,6 +131,7 @@ const App = () => {
 	return (
 		<div>
 			<h2>Phonebook</h2>
+			<Notification message={errorMessage}/>
 			<SearchForm value={newSearch} changeForm={handleSearchChange} />
 			<AddPersonForm 
 				formStyles={divStyles} 
