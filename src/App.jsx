@@ -1,22 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import { Person } from "./components/Person";
 import { SearchForm } from "./components/SearchForm";
 import { AddPersonForm } from "./components/AddPersonForm";
+import personService from "./services/personService";
 
 const App = () => {
-	const [persons, setPersons] = useState([
-		{ name: 'Arto Hellas', number: '040-123456'},
-		{ name: 'Ada Lovelace', number: '39-44-5323523'},
-		{ name: 'Dan Abramov', number: '12-43-234345'},
-		{ name: 'Mary Poppendieck', number: '39-23-6423122'}
-	  ])
-	
-
+	const [persons, setPersons] = useState([]);
 	const [newName, setNewName] = useState("");
 	const [newNumber, setNewNumber] = useState("");
 	const [newSearch, setNewSearch] = useState("");
 	const [filteredPerson, setFilteredPerson] = useState([]);
+
+	useEffect(() => {
+		personService.getAll()
+		.then((responce) => {
+			setPersons(responce.data);
+		})
+	}, [])
 
 	const addPerson = (event) => {
 		event.preventDefault();
@@ -26,15 +27,37 @@ const App = () => {
 			number: newNumber
 		}
 
-		if (persons.filter(person => person.name === personObject.name).length) {
-			alert(`${personObject.name} is already added to phonebook`);
+		const personOldValues = persons.find(p => p.name === personObject.name);
+
+		if (Object.values(personObject).filter( elem => elem === '').length > 0) {
+			alert('fill in the empty fields');
+		} else if (personOldValues) {
+			if (window.confirm(`${personOldValues.name} is already added to phonebook, replace the old number with a new one?`)) {
+				const personNewValues = {...personOldValues, number: personObject.number};
+
+				personService.changeNumber(personNewValues.id, personNewValues)
+				.then((responce) => {
+					setPersons(persons.map(person => person.id !== personOldValues.id ? person : responce.data))
+				})
+			}
 		} else {
 			setPersons(persons.concat(personObject));
+			personService.create(personObject);
 		}
 
 		setFilteredPerson([]);
 		setNewSearch("")
 	};
+
+	const deletePerson = (event) => {
+		const id = event.target.parentElement.id;
+		const name = persons[id-1].name;
+
+		if (window.confirm(`Delete ${name}?`)) {
+			setPersons(persons.filter(person => person.id !== Number(id)))
+			personService.personDelete(id);
+		}
+	}
 
 	const handlePersonChange = (event) => {
 		setNewName(event.target.value);
@@ -61,7 +84,13 @@ const App = () => {
 
 	const DefaultPersonList = () => {
 		return persons.map((person) => (
-			<Person person={person.name} number={person.number} key={nanoid()} />
+			<Person 
+				person={person.name}
+				number={person.number} 
+				id={person.id} 
+				deletePerson={deletePerson} 
+				key={nanoid()} 
+			/>
 		))
 	}
 
