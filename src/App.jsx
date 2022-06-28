@@ -11,7 +11,8 @@ const App = () => {
 	const [newNumber, setNewNumber] = useState("");
 	const [newSearch, setNewSearch] = useState("");
 	const [filteredPerson, setFilteredPerson] = useState([]);
-	const [errorMessage, setErrorMessage] = useState(null);
+	const [message, setMessage] = useState(null);
+	const [messageClass, setMessageClass] = useState('error');
 
 	useEffect(() => {
 		personService.getAll()
@@ -27,7 +28,7 @@ const App = () => {
 
 		return (
 			<div>
-				<p className="error">{message}</p>
+				<p className={messageClass}>{message}</p>
 			</div>
 		)
 	}
@@ -43,8 +44,9 @@ const App = () => {
 		const personOldValues = persons.find(p => p.name === personObject.name);
 
 		if (Object.values(personObject).filter( elem => elem === '').length > 0) {
-			setErrorMessage('Fill in the empty fields');
-			setTimeout(() => setErrorMessage(null), 3000);
+			setMessageClass('error');
+			setMessage('Fill in the empty fields');
+			setTimeout(() => setMessage(null), 3000);
 		} else if (personOldValues) {
 			if (window.confirm(`${personOldValues.name} is already added to phonebook, replace the old number with a new one?`)) {
 				const personNewValues = {...personOldValues, number: personObject.number};
@@ -53,10 +55,18 @@ const App = () => {
 				.then((responce) => {
 					setPersons(persons.map(person => person.id !== personOldValues.id ? person : responce.data))
 				})
+
+				setMessageClass('added');
+				setMessage(`Changed ${personObject.name}`);
+				setTimeout(() => setMessage(null), 3000);
 			}
 		} else {
 			setPersons(persons.concat(personObject));
 			personService.create(personObject);
+
+			setMessageClass('added');
+			setMessage(`Added ${personObject.name}`);
+			setTimeout(() => setMessage(null), 3000);
 		}
 
 		setFilteredPerson([]);
@@ -69,7 +79,12 @@ const App = () => {
 
 		if (window.confirm(`Delete ${name}?`)) {
 			setPersons(persons.filter(person => person.id !== Number(id)))
-			personService.personDelete(id);
+			personService.personDelete(id)
+			.catch(error => {
+				setMessageClass('error')
+				setMessage(`Information of ${name} has already been removed from server`);
+				setTimeout(() => setMessage(null), 3000);
+			})
 		}
 	}
 
@@ -131,7 +146,7 @@ const App = () => {
 	return (
 		<div>
 			<h2>Phonebook</h2>
-			<Notification message={errorMessage}/>
+			<Notification message={message}/>
 			<SearchForm value={newSearch} changeForm={handleSearchChange} />
 			<AddPersonForm 
 				formStyles={divStyles} 
