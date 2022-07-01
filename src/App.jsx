@@ -74,15 +74,15 @@ const App = () => {
 	};
 
 	const deletePerson = (event) => {
-		const id = event.target.parentElement.id;
-		const name = persons[id-1].name;
+		const id = Number(event.target.parentElement.id);
+		const deletedPerson = persons.find(person => person.id === id);		
 
-		if (window.confirm(`Delete ${name}?`)) {
+		if (window.confirm(`Delete ${deletedPerson.name}?`)) {
 			setPersons(persons.filter(person => person.id !== Number(id)))
 			personService.personDelete(id)
 			.catch(error => {
 				setMessageClass('error')
-				setMessage(`Information of ${name} has already been removed from server`);
+				setMessage(`Information of ${deletedPerson.name} has already been removed from server`);
 				setTimeout(() => setMessage(null), 3000);
 			})
 		}
