@@ -63,6 +63,10 @@ const App = () => {
 		} else {
 			setPersons(persons.concat(personObject));
 			personService.create(personObject);
+			personService.getAll()
+			.then((responce) => {
+				setPersons(responce.data);
+			})
 
 			setMessageClass('added');
 			setMessage(`Added ${personObject.name}`);
