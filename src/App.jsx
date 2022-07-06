@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import { Person } from "./components/Person";
 import { SearchForm } from "./components/SearchForm";
@@ -18,8 +18,9 @@ const App = () => {
 		personService.getAll()
 		.then((responce) => {
 			setPersons(responce.data);
+			console.log(1);
 		})
-	}, [])
+	}, [persons.length])
 
 	const Notification = ({message}) => {
 		if (message === null) {
@@ -63,13 +64,10 @@ const App = () => {
 		} else {
 			setPersons(persons.concat(personObject));
 			personService.create(personObject);
-			personService.getAll()
-			.then((responce) => {
-				setPersons(responce.data);
-			})
-
+			
 			setMessageClass('added');
 			setMessage(`Added ${personObject.name}`);
+
 			setTimeout(() => setMessage(null), 3000);
 		}
 
@@ -78,11 +76,11 @@ const App = () => {
 	};
 
 	const deletePerson = (event) => {
-		const id = Number(event.target.parentElement.id);
-		const deletedPerson = persons.find(person => person.id === id);		
+		const id = event.target.id;
+		const deletedPerson = persons.find(person => person._id === id);
 
 		if (window.confirm(`Delete ${deletedPerson.name}?`)) {
-			setPersons(persons.filter(person => person.id !== Number(id)))
+			setPersons(persons.filter(person => person._id !== id))
 			personService.personDelete(id)
 			.catch(error => {
 				setMessageClass('error')
@@ -118,9 +116,9 @@ const App = () => {
 	const DefaultPersonList = () => {
 		return persons.map((person) => (
 			<Person 
+				id={person._id}
 				person={person.name}
 				number={person.number} 
-				id={person.id} 
 				deletePerson={deletePerson} 
 				key={nanoid()} 
 			/>

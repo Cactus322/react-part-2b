@@ -1,3 +1,9 @@
-export const Person = ({person, number, id, deletePerson}) => (
-    <li id={id}>{person} {number} <button onClick={deletePerson}>delete</button></li>
+export const Person = ({id, person, number, deletePerson}) => (
+    <>
+        <li className="person-list__item">
+            <p className="name">{person}</p>
+            <p className="number">{number}</p> 
+            <button id={id} onClick={deletePerson}>delete</button>
+        </li>
+    </>
 )

@@ -33,3 +33,13 @@ code {
   margin-bottom: 10px;
   width: 200px;
 }
+
+.person-list__item {
+  display: flex;
+  margin: 10px 0;
+}
+
+.name,
+.number {
+  margin: 0 5px 0 0;
+}
