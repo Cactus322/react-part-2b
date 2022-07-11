@@ -18,7 +18,6 @@ const App = () => {
 		personService.getAll()
 		.then((responce) => {
 			setPersons(responce.data);
-			console.log(1);
 		})
 	}, [persons.length])
 
@@ -55,6 +54,11 @@ const App = () => {
 				personService.changeNumber(personNewValues.id, personNewValues)
 				.then((responce) => {
 					setPersons(persons.map(person => person.id !== personOldValues.id ? person : responce.data))
+					
+					personService.getAll()
+					.then((responce) => {
+						setPersons(responce.data);
+					})
 				})
 
 				setMessageClass('added');
@@ -77,10 +81,10 @@ const App = () => {
 
 	const deletePerson = (event) => {
 		const id = event.target.id;
-		const deletedPerson = persons.find(person => person._id === id);
+		const deletedPerson = persons.find(person => person.id === id);
 
 		if (window.confirm(`Delete ${deletedPerson.name}?`)) {
-			setPersons(persons.filter(person => person._id !== id))
+			setPersons(persons.filter(person => person.id !== id))
 			personService.personDelete(id)
 			.catch(error => {
 				setMessageClass('error')
@@ -116,7 +120,7 @@ const App = () => {
 	const DefaultPersonList = () => {
 		return persons.map((person) => (
 			<Person 
-				id={person._id}
+				id={person.id}
 				person={person.name}
 				number={person.number} 
 				deletePerson={deletePerson} 
