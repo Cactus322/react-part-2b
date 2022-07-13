@@ -54,6 +54,9 @@ const App = () => {
 				personService.changeNumber(personNewValues.id, personNewValues)
 				.then((responce) => {
 					setPersons(persons.map(person => person.id !== personOldValues.id ? person : responce.data))
+
+					setMessageClass('added');
+					setMessage(`Changed ${personObject.name}`);
 					
 					personService.getAll()
 					.then((responce) => {
@@ -65,8 +68,6 @@ const App = () => {
 					setMessage(error.response.data.error);
 				})
 
-				setMessageClass('added');
-				setMessage(`Changed ${personObject.name}`);
 				setTimeout(() => setMessage(null), 3000);
 			}
 		} else {
