@@ -60,6 +60,10 @@ const App = () => {
 						setPersons(responce.data);
 					})
 				})
+				.catch(error => {
+					setMessageClass('error');
+					setMessage(error.response.data.error);
+				})
 
 				setMessageClass('added');
 				setMessage(`Changed ${personObject.name}`);
@@ -67,7 +71,15 @@ const App = () => {
 			}
 		} else {
 			setPersons(persons.concat(personObject));
-			personService.create(personObject);
+			personService
+				.create(personObject)
+				.then(createdPerson => {
+					console.log(createdPerson);
+				})
+				.catch(error => {
+					setMessageClass('error');
+					setMessage(error.response.data.error);
+				})
 			
 			setMessageClass('added');
 			setMessage(`Added ${personObject.name}`);
